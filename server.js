@@ -6,27 +6,46 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 
-var connections = {};
-
+var webConnection;
+connections = {};
+counter = 1
 io.on('connection', (socket) =>{
-    
-  socket.on('message', (message) => {
-    if(message.sender === 'web'){
-		if(message.type === 'connected'){
+
+
+	socket.on('connected', (message) => {
+		if(message.sender === 'web'){
 			console.log('web-connected')
-		} else {
-			console.log('Client said: ', message)
-			socket.broadcast.emit('message-for-mobile', message)
-		}	
-    } else if (message.sender === 'mobile'){
-		if(message.type === 'connected'){
+			webConnection = socket.id;
+		} else if (message.sender === 'mobile'){
 			console.log('mobile-connected')
-		} else {
-			console.log('Client said: ', message)
-			socket.broadcast.emit('message-for-web', message)
+			connections[socket.id] = counter;
+			counter++;
+			io.to(webConnection).emit('new-connection', socket.id, connections)
+		} 
+	});
+
+	socket.on('disconnect', () => {
+		console.log('socket closed', socket.id)
+		console.log('before ',connections)
+		delete connections[socket.id]
+		if(counter > 1) {
+			counter--;
 		}
-    } 
-  })
+		console.log('after ',connections)
+		io.to(webConnection).emit('removed-connection', connections)
+	})
+    
+	socket.on('message', (toID, message) => {
+		if(message.sender === 'web'){
+			console.log('Client said: ', message)
+			console.log('toMobID:', toID)
+			io.to(toID).emit('message', message)
+		} else if (message.sender === 'mobile'){
+			console.log('Client said: ', message)
+			console.log('toWebID: ', webConnection)
+			io.to(webConnection).emit('message', socket.id, message)
+		} 
+	})
 });
 
 http.listen(6500, () => {
