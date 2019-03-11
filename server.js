@@ -67,5 +67,9 @@ io.on('connection', (socket) =>{
 });
 
 http.listen(process.env.PORT || 6500, () => {
-	console.log(process.env.PORT)
+	if(process.env.PORT){
+		console.log(process.env.PORT)
+	} else {
+		console.log('listening on 6500')
+	}
 });
