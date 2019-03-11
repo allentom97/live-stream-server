@@ -21,31 +21,49 @@ io.on('connection', (socket) =>{
 			connections[socket.id] = counter;
 			counter++;
 			io.to(webConnection).emit('new-connection', socket.id, connections)
+			io.to(webConnection).emit('connections-updated', connections) 
 		} 
 	});
 
 	socket.on('disconnect', () => {
 		console.log('socket closed', socket.id)
-		console.log('before ',connections)
 		delete connections[socket.id]
 		if(counter > 1) {
 			counter--;
 		}
-		console.log('after ',connections)
-		io.to(webConnection).emit('removed-connection', connections)
+		io.to(webConnection).emit('removed-connection', socket.id, connections)
+		io.to(webConnection).emit('connections-updated', connections)
 	})
     
 	socket.on('message', (toID, message) => {
 		if(message.sender === 'web'){
-			console.log('Client said: ', message)
+			console.log('Web said: ', message)
 			console.log('toMobID:', toID)
 			io.to(toID).emit('message', message)
 		} else if (message.sender === 'mobile'){
-			console.log('Client said: ', message)
+			console.log('Mobile said: ', message)
 			console.log('toWebID: ', webConnection)
 			io.to(webConnection).emit('message', socket.id, message)
 		} 
 	})
+
+	socket.on('text-message', (toID, message) => {
+		console.log('Web said: ', message)
+		io.to(toID).emit('text-message', message)
+	})
+
+	socket.on('options-set', (toID, message) => {
+		console.log('Web said: ', message)
+		io.to(toID).emit('options-set', message)
+	})
+
+	socket.on('options-response', (message) => {
+		console.log('Mobile said: ', message)
+		io.to(webConnection).emit('options-response', socket.id, message)
+	})
+
+	
+
 });
 
 http.listen(6500, () => {
