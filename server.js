@@ -49,12 +49,13 @@ io.on('connection', (socket) =>{
 
 	socket.on('text-message', (toID, message) => {
 		console.log('Web said: ', message)
+		console.log('toMobID:', toID)
 		io.to(toID).emit('text-message', message)
 	})
 
-	socket.on('options-set', (toID, message) => {
+	socket.on('options-message', (toID, message) => {
 		console.log('Web said: ', message)
-		io.to(toID).emit('options-set', message)
+		io.to(toID).emit('options-message', message)
 	})
 
 	socket.on('options-response', (message) => {
