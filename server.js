@@ -1,6 +1,7 @@
-var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var express = require('express');
+var app = express();
+var server = require('http').createServer(app);
+var io = require('socket.io')(server);
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
@@ -53,9 +54,15 @@ io.on('connection', (socket) =>{
 		io.to(toID).emit('text-message', message)
 	})
 
-	socket.on('options-message', (toID, message) => {
+	socket.on('options-message', (toID, otherIDs, message) => {
 		console.log('Web said: ', message)
-		io.to(toID).emit('options-message', message)
+		console.log('toMobID:', toID)
+		io.to(toID).emit('options-message', otherIDs, message)
+	})
+
+	socket.on('option-taken', (toID, otherIDs, message)=>{
+		console.log('toMobID:', toID)
+		io.to(toID).emit('option-taken', otherIDs, message)
 	})
 
 	socket.on('options-response', (message) => {
@@ -67,7 +74,7 @@ io.on('connection', (socket) =>{
 
 });
 
-http.listen(process.env.PORT || 6500, () => {
+server.listen(process.env.PORT || 6500, () => {
 	if(process.env.PORT){
 		console.log(process.env.PORT)
 	} else {
