@@ -57,7 +57,7 @@ io.on('connection', (socket) =>{
 	socket.on('air', (toID, message) => {
 		console.log('Web said: ', message)
 		console.log('toMobID:', toID)
-		io.to(toID).emit('air', toID, message)
+		io.to(toID).emit('air', message)
 	})
 
 	socket.on('options-message', (toID, otherIDs, message) => {
