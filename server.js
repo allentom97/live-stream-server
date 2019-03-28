@@ -54,6 +54,12 @@ io.on('connection', (socket) =>{
 		io.to(toID).emit('text-message', message)
 	})
 
+	socket.on('air', (toID, message) => {
+		console.log('Web said: ', message)
+		console.log('toMobID:', toID)
+		io.to(toID).emit('air', toID, message)
+	})
+
 	socket.on('options-message', (toID, otherIDs, message) => {
 		console.log('Web said: ', message)
 		console.log('toMobID:', toID)
