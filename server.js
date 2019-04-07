@@ -51,7 +51,7 @@ io.on('connection', (socket) =>{
 	})
 
 	socket.on('options-message', (toID, otherIDs, message) => {
-		io.to(toID).emit('options-message',toID, otherIDs, message)
+		io.to(toID).emit('options-message', otherIDs, message)
 	})
 
 	socket.on('option-taken', (toID, otherIDs, message)=>{
