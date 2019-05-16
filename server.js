@@ -42,8 +42,16 @@ io.on('connection', (socket) =>{
 		} 
 	})
 
-	socket.on('text-message', (toID, message) => {
-		io.to(toID).emit('text-message', message)
+	socket.on('text-message', (toID, otherIDs, message) => {
+		var otherStreamers = []
+		for(var i in otherIDs){
+			otherStreamers.push(connections[otherIDs[i]])
+		}
+		var index = otherStreamers.indexOf(connections[toID]);
+		if (index > -1) {
+			otherStreamers.splice(index, 1);
+		}
+		io.to(toID).emit('text-message', otherStreamers, message)
 	})
 
 	socket.on('air', (toID, message) => {
