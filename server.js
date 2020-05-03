@@ -14,12 +14,14 @@ io.on('connection', (socket) =>{
 
 	socket.on('connected', (message) => {
 		if(message.sender === 'web'){
+			console.log('web server connected')
 			webConnection = socket.id;
 		}
 	});
 
 	socket.on('mobile-connected', (message) => {
 		if (message.sender === 'mobile'){
+			
 			if(Object.values(connections).includes(message.name)){
 				io.to(socket.id).emit('name-taken')
 			} else{
@@ -27,9 +29,11 @@ io.on('connection', (socket) =>{
 				io.to(webConnection).emit('new-connection', socket.id, connections)
 				io.to(socket.id).emit('mobile-connected')
 			}
+			console.log('mobile application ' + connections[socket.id] + ' connected')
 		} 
 	})
 	socket.on('disconnect', () => {
+		console.log(connections[socket.id] + ' disconnected')
 		delete connections[socket.id]
 		io.to(webConnection).emit('removed-connection', socket.id, connections)
 	})
@@ -68,6 +72,10 @@ io.on('connection', (socket) =>{
 
 	socket.on('options-response', (message) => {
 		io.to(webConnection).emit('options-response', connections[socket.id], message)
+	})
+
+	socket.on('status', (message) => {
+		io.to(webConnection).emit('status', connections[socket.id], message)
 	})
 
 	
